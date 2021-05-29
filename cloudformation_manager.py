@@ -25,6 +25,16 @@ def fetch_cloudformation_exports(cf_client, list_exports_params: dict = {}):
             break
     return local_cf_exports
 
+def request_yes_or_no_to_user(text, default_yes: bool = True) -> bool:
+    defined_answer = " [Y/n]" if default_yes else " [y/N]"
+    while True:
+        value = input(text + defined_answer)
+        if not value:
+            return default_yes
+        elif value.lower() == "y":
+            return True
+        elif value.lower() == "n":
+            return False
 
 def request_confirmation(question, yes_default: bool = False):
     valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False}
@@ -83,6 +93,30 @@ def calculate_parameters(config_dict, config_file_path, logger: logging.Logger):
             except Exception as e:
                 logger.error("Error trying to retrieve environmental variable")
                 raise e
+
+        if "CLIRequested" in config_params:
+            duplicate_parameters = [key for key in config_params["CLIRequested"] if key in config_params]
+            if duplicate_parameters:
+                raise Exception("There are duplicate parameters in the config file. Check these variables {}".format(duplicate_parameters))
+
+            try:
+                previous_values = {item["ParameterKey"]: item["ParameterValue"] for item in
+                                  cf.describe_stacks(StackName=calculated_parameters['StackName'])["Stacks"][0]["Parameters"]}
+                logger.debug("Previous parameters are: {}".format(previous_values))
+            except Exception as e:
+                logger.warning("Raising error '{}' when retrieving previous values of CLIRequested parameters".format(e))
+                previous_values = {}
+
+            for param in config_params["CLIRequested"]:
+                if param in previous_values and previous_values[param] != '****':
+                    keep_previous_value = request_yes_or_no_to_user("Parameter '{}' was provided in previous deployment. Keep previous value?".format(param))
+                    if keep_previous_value:
+                        value = previous_values[param]
+                    else:
+                        value = input("Add new value for parameter '{}':".format(param))
+                else:
+                    value = input("Parameter '{}' is required to be added in the terminal, please provide the value:".format(param))
+                parameters.update({param: value})
 
         if "CloudFormationExports" in config_params:
             duplicate_parameters = [key for key in config_params["CloudFormationExports"].keys() if key in config_params]
@@ -150,6 +184,15 @@ def deployment(template_body, parameters, cf_client, ask_for_changes: bool, logg
             if stack["StackName"]:
                 if "IN_PROGRESS" in stack["StackStatus"]:
                     raise Exception("Cloudformation is performing {} over stack {}. Deployment can not continue...".format(stack["StackStatus"], parameters['StackName']))
+            if "ROLLBACK_COMPLETE" == stack["StackStatus"]:
+                remove_previous_stack = request_yes_or_no_to_user("Stack '{}' was deployed previously for first time but failed. It needs to be removed before deploying it again. Should it be removed?")
+                if remove_previous_stack:
+                    logger.info("Removing previous stack...")
+                    cf_client.delete_stack(StackName=parameters['StackName'])
+                    cf_client.get_waiter('stack_delete_complete').wait(StackName=parameters['StackName'])
+                    logger.info("Removal has been completed!")
+                    stack_exists = False
+                    break
             if "COMPLETE" in stack["StackStatus"] or "FAILED" in stack["StackStatus"]:
                 stack_exists = True
                 break
