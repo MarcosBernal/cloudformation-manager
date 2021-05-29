@@ -18,12 +18,16 @@ Deploying CloudFormation stacks through an easy way
 Tested on debian (ubuntu 18.04)
 
 ## Use
-    cloudformation-manager [YOUR_PATH_FOLDER_WITH_CLOUDFORMATION_FILES]
+The program can be used in the following way:
+
+    cloudformation-manager [YOUR_FOLDER_PATH_WITH_CLOUDFORMATION_FILES]
+
+where the folder specified as argument contains two files: a config.yml and a template.yml
 
 ## Example
 The following example creates two stacks from the templates stored in the example folder.
 
-The first stack creates a sns topic to the email specified in the [template](example/1_sns/config.yml) (change it to your own email)
-The second stack uses the exported variables created in the first stack to show how they can be connected.
+The first stack creates a sns topic to the email specified in terminal (change the [template](example/1_sns/config.yml) to add it as a literal if you prefer).
+The second stack uses the exported variables created in the first stack (without being hard-linked as [import value does](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-importvalue.html)).
 
     cloudformation-manager ~/WORKSPACE/cloudformation-manager/example/1_sns ~/WORKSPACE/cloudformation-manager/example/2_bucket

@@ -5,7 +5,7 @@ Parameters:
   LiteralValues:
     BucketPrefix: "my-bucket-example"  # The account id will be added in the template
   CloudFormationExports:
-    SNSTopicArn: MyPersonalNotificationTopicArn
+    SNSTopicArn: MyPersonalNotificationTopicArn  # Value obtained from the export of the first stack
 
 Tags:
   LiteralValues:
