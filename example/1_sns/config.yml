@@ -1,0 +1,22 @@
+StackName: "TopicTemplateExample"
+RegionName: "eu-west-1"
+
+Parameters:
+  CLIRequested:
+    - Email
+#  LiteralValues:
+#    Email: "myemail@anotherexample.com"  # The email can be provided as literal
+#  EnvironmentalValues:
+#    Environment: ENV
+#  CloudFormationExports:
+#    SNSTopicArn: PersonalNotificationTopicArn
+
+Tags:
+  LiteralValues:
+    Project: "Example"
+
+
+Capabilities:
+- CAPABILITY_IAM
+- CAPABILITY_NAMED_IAM
+- CAPABILITY_AUTO_EXPAND

@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "Example stack for cloudformation-manager, it creates a bucket and notify object events on a sns topic"
+
+Parameters:
+  BucketPrefix:
+    Type: String
+  SNSTopicArn:
+    Type: String
+
+Resources:
+  BucketTemplateExample:
+    Type: "AWS::S3::Bucket"
+    Description: "Example Bucket that notifies the objects that are created in the bucket to the specified sns topic"
+    Properties:
+      BucketName: !Join ["-", [!Ref BucketPrefix, !Ref "AWS::AccountId"]]
+      NotificationConfiguration:
+        TopicConfigurations:
+          - Topic: !Ref SNSTopicArn
+            Event: "s3:ObjectCreated:*"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: 'AES256'
+
+Outputs:
+  BucketTemplateExampleName:
+    Value: !Ref BucketTemplateExample
+    Export:
+      Name: BucketTemplateExampleName
+
+  BucketTemplateExampleDomainName:
+    Value: !GetAtt BucketTemplateExample.DomainName
+    Export:
+      Name: BucketTemplateExampleDomainName

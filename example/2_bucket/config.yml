@@ -1,0 +1,18 @@
+StackName: "BucketTemplateExample"
+RegionName: "eu-west-1"
+
+Parameters:
+  LiteralValues:
+    BucketPrefix: "my-bucket-example"  # The account id will be added in the template
+  CloudFormationExports:
+    SNSTopicArn: MyPersonalNotificationTopicArn
+
+Tags:
+  LiteralValues:
+    Project: "Example"
+
+
+Capabilities:
+- CAPABILITY_IAM
+- CAPABILITY_NAMED_IAM
+- CAPABILITY_AUTO_EXPAND

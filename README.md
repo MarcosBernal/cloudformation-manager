@@ -8,13 +8,22 @@ Deploying CloudFormation stacks through an easy way
 - Python dependencies located in *requirements.txt* they might be installed with the command:
     - `python3 -m pip install --user -r requirements.txt`
 
-## Use
+## Installation on linux environment
 
-    # After cloning/downloading this repo
+    # Clone/download this repo
     git clone https://github.com/MarcosBernal/cloudformation-manager ~/WORKSPACE/cloudformation-manager
-    cd ~/WORKSPACE/cloudformation-manager
-    python3 cloudformation_manager.py [YOUR_PATH_FOLDER_WITH_CLOUDFORMATION_FILES]
-
     # Alternatively a linked executable file can be created. In a debian based OS might be achieved with:
     sudo ln -s ~/WORKSPACE/cloudformation-manager/cloudformation_manager.py /usr/local/bin/cloudformation-manager
+
+Tested on debian (ubuntu 18.04)
+
+## Use
     cloudformation-manager [YOUR_PATH_FOLDER_WITH_CLOUDFORMATION_FILES]
+
+## Example
+The following example creates two stacks from the templates stored in the example folder.
+
+The first stack creates a sns topic to the email specified in the [template](example/1_sns/config.yml) (change it to your own email)
+The second stack uses the exported variables created in the first stack to show how they can be connected.
+
+    cloudformation-manager ~/WORKSPACE/cloudformation-manager/example/1_sns ~/WORKSPACE/cloudformation-manager/example/2_bucket

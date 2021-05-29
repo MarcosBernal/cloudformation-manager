@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "Example stack for cloudformation-manager, it sets a sns topic to address an email"
+
+Parameters:
+  Email:
+    Type: String
+    # NoEcho: true  # To hide the parameter value
+
+Resources:
+  PersonalNotificationTopic:
+    Type: "AWS::SNS::Topic"
+    Description: "Sns topic that communicates directly with my email"
+    Properties:
+      TopicName: "MyPersonalNotificationTopic"
+      Subscription:
+        - Endpoint: !Ref Email
+          Protocol: email
+
+  TopicAccessFromS3Service:
+    Type: "AWS::SNS::TopicPolicy"
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: s3.amazonaws.com
+            Action: 'sns:Publish'
+            Condition:
+              StringEquals:
+                "AWS:SourceAccount": !Ref "AWS::AccountId"
+            Resource:
+              - !Ref PersonalNotificationTopic
+      Topics:
+        - !Ref PersonalNotificationTopic
+
+Outputs:
+  PersonalNotificationTopicArn:
+    Value: !Ref PersonalNotificationTopic
+    Export:
+      Name: MyPersonalNotificationTopicArn
+
+  PersonalNotificationTopicName:
+    Value: !GetAtt PersonalNotificationTopic.TopicName
+    Export:
+      Name: MyPersonalNotificationTopicName
