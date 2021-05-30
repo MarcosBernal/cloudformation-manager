@@ -9,7 +9,7 @@ import datetime
 import texttable
 
 
-CFM_VERSION = '1.0.0'
+CFM_VERSION = '1.1.1'
 
 
 def fetch_cloudformation_exports(cf_client, list_exports_params: dict = {}):
@@ -25,6 +25,7 @@ def fetch_cloudformation_exports(cf_client, list_exports_params: dict = {}):
             break
     return local_cf_exports
 
+
 def request_yes_or_no_to_user(text, default_yes: bool = True) -> bool:
     defined_answer = " [Y/n]" if default_yes else " [y/N]"
     while True:
@@ -35,6 +36,7 @@ def request_yes_or_no_to_user(text, default_yes: bool = True) -> bool:
             return True
         elif value.lower() == "n":
             return False
+
 
 def request_confirmation(question, yes_default: bool = False):
     valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False}
@@ -185,7 +187,7 @@ def deployment(template_body, parameters, cf_client, ask_for_changes: bool, logg
                 if "IN_PROGRESS" in stack["StackStatus"]:
                     raise Exception("Cloudformation is performing {} over stack {}. Deployment can not continue...".format(stack["StackStatus"], parameters['StackName']))
             if "ROLLBACK_COMPLETE" == stack["StackStatus"]:
-                remove_previous_stack = request_yes_or_no_to_user("Stack '{}' was deployed previously for first time but failed. It needs to be removed before deploying it again. Should it be removed?")
+                remove_previous_stack = request_yes_or_no_to_user("Stack '{}' was deployed previously for first time but failed. It needs to be removed before deploying it again. Should it be removed?".format(parameters['StackName']))
                 if remove_previous_stack:
                     logger.info("Removing previous stack...")
                     cf_client.delete_stack(StackName=parameters['StackName'])
